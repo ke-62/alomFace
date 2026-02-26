@@ -4,10 +4,10 @@ import './App.css';
 
 import OpenAI from 'openai';
 
-// const openai = new OpenAI({
-//   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-//   dangerouslyAllowBrowser: true 
-// });
+const openai = new OpenAI({
+  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
 const SYSTEM_PROMPT = `
 당신은 조선 최고의 IT 개발 동아리 'ALOM'에서 파견 나온 신통방통한 'AI 관상가'이옵니다.
@@ -33,36 +33,34 @@ function App() {
   const [resultText, setResultText] = useState("이곳에 ALOM의 관상가가 그대의 운명을 점쳐 올리겠소...\n\n(준비가 되었거든 왼쪽의 '관상 보기' 버튼을 누르시게!)");
   const [isLoading, setIsLoading] = useState(false);
 
-  // eslint-disable-next-line no-unused-vars
-  const analyzeFace = useCallback((base64Image) => {
+  const analyzeFace = useCallback(async (base64Image) => {
     setIsLoading(true);
-    setResultText("본 관상가가 그대의 용안을 면밀히 살피는 중이옵니다... ⏳\n(현재는 테스트 모드이옵니다. 약 2~3초 소요)");
+    setResultText("본 관상가가 그대의 용안을 면밀히 살피는 중이옵니다... ⏳");
 
-    setTimeout(() => {
-      const mockResult = `
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
-          ⚔️ 萬人斬 (만인참) 무인 ⚔️
-┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+    // setTimeout(() => {
+    //       const mockResult = `
+    // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+    //           ⚔️ 萬人斬 (만인참) 무인 ⚔️
+    // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 
-태산 같은 기백이오! 수만 개의 버그(Bug)를 단칼에 베어버릴 대장군의 상이옵니다! 🔥
+    // 태산 같은 기백이오! 수만 개의 버그(Bug)를 단칼에 베어버릴 대장군의 상이옵니다! 🔥
 
-부리부리한 눈매를 보아하니 어떤 빨간 에러 로그 앞에서도 
-눈 하나 깜짝하지 않을 강인한 멘탈을 지녔으며,
-굳게 다문 입술은 밤샘 코딩에도 지치지 않을 체력을 보여주옵니다. 💻
+    // 부리부리한 눈매를 보아하니 어떤 빨간 에러 로그 앞에서도 
+    // 눈 하나 깜짝하지 않을 강인한 멘탈을 지녔으며,
+    // 굳게 다문 입술은 밤샘 코딩에도 지치지 않을 체력을 보여주옵니다. 💻
 
-허나, 매일 모니터만 뚫어져라 쳐다보다가는 
-눈이 침침해질 수 있으니 인공눈물을 가까이 하시옵소서! 💧
+    // 허나, 매일 모니터만 뚫어져라 쳐다보다가는 
+    // 눈이 침침해질 수 있으니 인공눈물을 가까이 하시옵소서! 💧
 
-이리도 훌륭한 무인의 기운을 그저 썩힐 셈이오?
-당장 우리 'ALOM' 동아리에 합류하시어 
-그대의 검(키보드)으로 천하의 버그를 소탕하시옵소서! 🚀
-      `;
+    // 이리도 훌륭한 무인의 기운을 그저 썩힐 셈이오?
+    // 당장 우리 'ALOM' 동아리에 합류하시어 
+    // 그대의 검(키보드)으로 천하의 버그를 소탕하시옵소서! 🚀
+    //       `;
 
-      setResultText(mockResult);
-      setIsLoading(false);
-    }, 2500);
+    //       setResultText(mockResult);
+    //       setIsLoading(false);
+    //     }, 2500);
 
-    /*
     try {
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -89,7 +87,6 @@ function App() {
     } finally {
       setIsLoading(false);
     }
-    */
   }, []);
 
   const capture = useCallback(() => {
@@ -106,7 +103,7 @@ function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1>🔮 신비한 AI 관상소 - ALOM (테스트 모드) 🔮</h1>
+        <h1>🔮 신비한 AI 관상소 - ALOM🔮</h1>
         <p>조선 최고의 ALOM 관상가가 그대의 코딩 운명을 점쳐드리리다!</p>
       </header>
 
