@@ -4,6 +4,7 @@ import resultBackgroundBlack from '../assets/images/resultBackgrounBlack.png';
 import retryImg from '../assets/images/retry.png';
 import resultRoll from '../assets/images/resultRoll.png';
 import stampImg from '../assets/images/stamp.png';
+import { renderFaceContent, renderFortuneContent } from '../utils/renderContent';
 
 const widthScrollStyle = {
     backgroundImage: `url(${rollOfPaperWidth})`,
@@ -25,24 +26,6 @@ const resultRollStyle = {
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat',
 };
-
-function renderFaceContent(text) {
-    return text.split('\n').filter(l => l.trim()).map((line, idx) => {
-        if (line.startsWith('•')) {
-            return <div key={idx} className="face-item">{line}</div>;
-        }
-        return <div key={idx} className="face-text">{line}</div>;
-    });
-}
-
-function renderFortuneContent(text) {
-    return text.split('\n').filter(l => l.trim()).map((line, idx) => {
-        if (line.match(/^[💻🚀🐛🎯📚🤝💰🏆✨]/u) || line.includes('운:')) {
-            return <div key={idx} className="fortune-item">{line}</div>;
-        }
-        return <div key={idx} className="fortune-text">{line}</div>;
-    });
-}
 
 function ResultScreen({ imgSrc, resultSections, retake }) {
     return (

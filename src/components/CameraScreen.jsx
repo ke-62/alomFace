@@ -1,8 +1,11 @@
 import Webcam from 'react-webcam';
 import backgroundWidth from '../assets/images/background_width.png';
 import cameraIcon from '../assets/images/cameraIcon.png';
+import { LOADING_TEXT, SCAN_TEXT, CAPTURE_BUTTON_TEXT } from '../constants';
 
-function CameraScreen({ webcamRef, imgSrc, isLoading, capture }) {
+function CameraScreen({ webcamRef, imgSrc, isLoading, hintText, capture }) {
+    const displayHint = isLoading ? LOADING_TEXT : hintText;
+
     return (
         <div className="camera-screen">
             <img src={backgroundWidth} alt="" className="camera-bg-img" />
@@ -27,7 +30,7 @@ function CameraScreen({ webcamRef, imgSrc, isLoading, capture }) {
                         {isLoading && (
                             <div className="scan-overlay">
                                 <div className="scan-line"></div>
-                                <div className="scan-text">관상 분석 중...</div>
+                                <div className="scan-text">{SCAN_TEXT}</div>
                             </div>
                         )}
                     </div>
@@ -36,11 +39,11 @@ function CameraScreen({ webcamRef, imgSrc, isLoading, capture }) {
                 <div className="camera-controls">
                     <div className="hint-ribbon">
                         <p className="camera-hint">
-                            {isLoading ? "용안을 살피는 중이옵니다... ⏳" : "카메라를 보고..."}
+                            {displayHint}
                         </p>
                     </div>
                     <button className="capture-btn" onClick={capture} disabled={isLoading}>
-                        관상 보기 (클릭!)
+                        {CAPTURE_BUTTON_TEXT}
                     </button>
                 </div>
             </div>

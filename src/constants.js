@@ -1,11 +1,13 @@
 export const USE_MOCK_DATA = false;
+export const USE_MOCK_ERROR = false;
 export const SECTION_DELIMITER = '###SECTION###';
 export const MOCK_DELAY = 2000;
 
-export const INITIAL_TEXT =
-  '여기 앉으시게. 얼굴을 똑바로 들고 관상 스캔을 누르시오.\n\n(준비가 되었거든 아래 버튼을 누르시게!)';
-export const LOADING_TEXT = '⏳그대의 용안을 자세히 살펴보는 중이옵니다.⏳';
+export const INITIAL_TEXT = '카메라를 보고...';
+export const LOADING_TEXT = '⏳용안을 살피는 중이옵니다⏳';
 export const RETAKE_TEXT = '다음 분 앞으로 오시게! 카메라를 응시하고 버튼을 누르시오.';
+export const SCAN_TEXT = '관상 분석 중';
+export const CAPTURE_BUTTON_TEXT = '관상 보기 (클릭!)';
 
 export const SYSTEM_PROMPT = `
 당신은 조선시대 배경의 창작 관상 엔터테인먼트 게임 속 관상가 캐릭터이옵니다.
@@ -68,3 +70,5 @@ export const MOCK_RESULTS = [
   `📜 문인(文人)📜\n\n붓끝에서 진리가 흐르는 천하제일 문장가의 상이옵니다! 📖\n\n###SECTION###\n\n• 이마가 높고 총명해 보이니 → 어려운 이치도 순식간에 깨우치는 지혜를 가졌구나! 💡\n• 눈빛이 맑고 차분하니 → 글을 짓고 학문을 논하는 데 타고난 재주가 있소! 📝\n• 입매가 단정하고 사려깊어 보여 → 말로써 사람을 설득하는 능변이 탁월하오!\n• 전반적으로 지적이고 섬세한 인상 → 학문과 예술에 뛰어난 재능을 타고났소!\n\n###SECTION###\n\n💰 재물운: 학문으로 명예와 녹봉을 얻을 운명이오!\n🤝 인연운: 글로써 뭇사람을 감화시킬 재능이 있소!\n📚 학문운: 끊임없이 배우며 성장하는 평생 학자의 관상이오!\n🏆 벼슬운: 존경받는 대학자가 될 운명이로다!\n✨ 수명운: 학덕을 쌓아 길이 이름을 남길 팔자요!`,
   `🌿 의관(醫官)🌿\n\n백성의 병을 고치는 천하제일 의원의 상이옵니다! 🔬\n\n###SECTION###\n\n• 눈가가 세심하고 주의깊어 보이니 → 미세한 증상도 놓치지 않는 예리한 관찰력이 있구나!\n• 전체적으로 차분하고 신중한 인상 → 성급하지 않고 병의 근원을 찾아내는 꼼꼼함이 있소!\n• 미간이 좁고 집중력 있어 보이니 → 어려운 병증도 능숙하게 다스릴 솜씨가 있소! 🛠️\n• 입술이 굳건하니 → 어떤 어려운 환자도 끝까지 치료해낼 끈기가 있도다!\n\n###SECTION###\n\n💰 재물운: 의술로 명성과 재물을 얻을 상이옵니다!\n🤝 인연운: 많은 이의 생명을 살려 덕망을 쌓을 팔자요!\n📚 학문운: 깊이 있게 파고드는 전문가의 기질이 있소!\n🏆 벼슬운: 어의 혹은 명의로 이름을 떨칠 운명이로다!\n✨ 수명운: 덕을 쌓아 자손대대 복을 누릴 팔자요!🚀✨`,
 ];
+
+export const MOCK_ERROR_RESULT = '얼굴이 확인되지 않습니다.';
