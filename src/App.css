@@ -279,7 +279,7 @@ body {
   justify-content: center;
   padding: 20% 15% 24%;
   gap: 12px;
-  transform: translate(-160px, -80px);
+  transform: translate(-160px, -45px);
   min-height: 630px;
 }
 
@@ -421,8 +421,8 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 10% 15% 7%;
-  min-height: 560px;
+  padding: 9% 15% 5%;
+  min-height: 460px;
 }
 
 .roll-card-body {
