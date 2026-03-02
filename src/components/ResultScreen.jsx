@@ -3,6 +3,7 @@ import rollOfPaperLength from '../assets/images/rollOfPaper_length.png';
 import resultBackgroundBlack from '../assets/images/resultBackgrounBlack.png';
 import retryImg from '../assets/images/retry.png';
 import resultRoll from '../assets/images/resultRoll.png';
+import stampImg from '../assets/images/stamp.png';
 
 const widthScrollStyle = {
     backgroundImage: `url(${rollOfPaperWidth})`,
@@ -72,6 +73,7 @@ function ResultScreen({ imgSrc, resultSections, retake }) {
                         <h3 className="roll-section-title">신분 판정서</h3>
                         <div className="huge-title">{resultSections.title}</div>
                         <div className="highlight-desc">{resultSections.identityDesc}</div>
+                        <img src={stampImg} alt="stamp" className="identity-stamp" />
                     </div>
                 </div>
 

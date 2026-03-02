@@ -354,9 +354,10 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 5% 12%;
+  padding: 5% 22% 5% 8%;
   min-height: 280px;
   margin-left: -40px;
+  position: relative;
 }
 
 .roll-section-title {
@@ -371,6 +372,8 @@ body {
   width: 100%;
 }
 
+
+
 .huge-title {
   font-size: 3rem;
   color: #0c0200;
@@ -383,12 +386,26 @@ body {
   letter-spacing: 3px;
 }
 
+
+
 .highlight-desc {
   font-size: 0.95rem;
   color: #200a00;
   text-align: center;
   line-height: 1.85;
   font-weight: 400;
+}
+
+
+
+.identity-stamp {
+  position: absolute;
+  bottom: 1%;
+  right: 14%;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  opacity: 0.9;
 }
 
 .result-grid {
