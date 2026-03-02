@@ -279,7 +279,7 @@ body {
   justify-content: center;
   padding: 20% 15% 24%;
   gap: 12px;
-  transform: translate(-160px, -45px);
+  transform: translate(-160px, -95px);
   min-height: 630px;
 }
 
@@ -357,6 +357,7 @@ body {
   padding: 5% 22% 5% 8%;
   min-height: 280px;
   margin-left: -40px;
+  margin-top: -130px;
   position: relative;
 }
 
@@ -413,7 +414,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 24px;
   width: 100%;
-  margin-top: -100px;
+  margin-top: -150px;
 }
 
 .roll-card {
@@ -421,8 +422,8 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 9% 15% 5%;
-  min-height: 550px;
+  padding: 5% 15% 5%;
+  min-height: 600px;
 }
 
 .roll-card-body {
@@ -452,15 +453,13 @@ body {
 }
 
 .fortune-item {
-  font-size: 0.93rem;
-  color: #0c0200;
-  font-weight: 700;
-  line-height: 1.6;
+  font-size: 0.9rem;
+  color: #180800;
+  line-height: 1.7;
 }
 
 .fortune-text {
   font-size: 0.85rem;
-  color: #2e1000;
+  color: #200a00;
   margin: 7px 0;
-  line-height: 1.8;
 }

@@ -76,7 +76,7 @@ export function useFaceAnalysis() {
 
   const retake = useCallback(() => {
     setImgSrc(null);
-    setResultText(RETAKE_TEXT);
+    setResultText(INITIAL_TEXT);
   }, []);
 
   const resultSections = useMemo(() => parseResult(resultText), [resultText]);
