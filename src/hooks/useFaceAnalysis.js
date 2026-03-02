@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
 import { fetchFaceAnalysis } from '../services/openaiService';
-import { parseResult, validateResponse } from '../utils/parseResult';
+import { parseResult, validateResponse, validateTitle } from '../utils/parseResult';
+import { ERROR_MESSAGES } from '../error/messages';
 import {
   USE_MOCK_DATA,
   USE_MOCK_ERROR,
@@ -30,7 +31,7 @@ export function useFaceAnalysis() {
         if (!validateResponse(mockText)) {
           console.error('[Mock] AI 얼굴 인식 실패: 섹션 구분자 없음. 응답 내용:', mockText);
           setImgSrc(null);
-          setResultText('관상을 제대로 읽지 못하였소...\n얼굴이 잘 보이도록 다시 한번 찍어주시오! 📸');
+          setResultText(ERROR_MESSAGES.MOCK_PARSE_FAIL);
           setIsLoading(false);
           return;
         }
@@ -43,9 +44,16 @@ export function useFaceAnalysis() {
     try {
       const responseText = await fetchFaceAnalysis(base64Image);
       if (!validateResponse(responseText)) {
-        console.error('[AI 얼굴 인식 실패] 섹션 구분자 부족. 응답 내용:', responseText);
+        console.error('[AI 얼굴 인식 실패] 섹션 구분자 오류. 응답 내용:', responseText);
         setImgSrc(null);
-        setResultText('관상을 제대로 읽지 못하였소...\n얼굴이 잘 보이도록 다시 한번 찍어주시오! 📸');
+        setResultText(ERROR_MESSAGES.FACE_NOT_DETECTED);
+        return;
+      }
+      const { title } = parseResult(responseText);
+      if (!validateTitle(title)) {
+        console.error('[AI 얼굴 인식 실패] 신분 판정 불가. 응답 내용:', responseText);
+        setImgSrc(null);
+        setResultText(ERROR_MESSAGES.FACE_NOT_DETECTED);
         return;
       }
       setResultText(responseText);
@@ -62,7 +70,7 @@ export function useFaceAnalysis() {
         console.error('[AI 호출 오류] 네트워크 또는 알 수 없는 오류:', error);
       }
       setImgSrc(null);
-      setResultText('통신 중 요망한 에러가 발생하였소...\n잠시 후 다시 시도해 주시오! 🙏');
+      setResultText(ERROR_MESSAGES.NETWORK_ERROR);
     } finally {
       setIsLoading(false);
     }
