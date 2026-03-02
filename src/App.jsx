@@ -62,12 +62,21 @@ function App() {
             ],
           },
         ],
-        max_tokens: 1000,
+        max_tokens: 2000,
+        temperature: 0.95,
       });
-      setResultText(response.choices[0].message.content);
+      const responseText = response.choices[0].message.content;
+      const sectionCount = (responseText.match(/###SECTION###/g) || []).length;
+      if (sectionCount < 2) {
+        setImgSrc(null);
+        setResultText('관상을 제대로 읽지 못하였소...\n얼굴이 잘 보이도록 다시 한번 찍어주시오! 📸');
+        return;
+      }
+      setResultText(responseText);
     } catch (error) {
       console.error(error);
-      setResultText(`통신 중 요망한 에러가 발생하였소 ㅠㅠ\n(${error.message})`);
+      setImgSrc(null);
+      setResultText('통신 중 요망한 에러가 발생하였소...\n잠시 후 다시 시도해 주시오! 🙏');
     } finally {
       setIsLoading(false);
     }
