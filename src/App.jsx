@@ -1,103 +1,66 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useMemo } from 'react';
 import OpenAI from 'openai';
 import CameraScreen from './components/CameraScreen';
 import ResultScreen from './components/ResultScreen';
+import {
+  USE_MOCK_DATA,
+  SECTION_DELIMITER,
+  MOCK_DELAY,
+  INITIAL_TEXT,
+  LOADING_TEXT,
+  RETAKE_TEXT,
+  SYSTEM_PROMPT,
+  MOCK_RESULTS,
+} from './constants';
 import './App.css';
-
-const USE_MOCK_DATA = true; // ← true: 무료 테스트용, false: 실제 AI 사용
 
 const openai = new OpenAI({
   apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
+  dangerouslyAllowBrowser: true,
 });
 
-const SYSTEM_PROMPT = `
-당신은 조선 최고의 관상가이옵니다.
-제공된 이미지를 보고, 사용자의 관상을 다음 [4가지 신분] 중 하나로 분류하여 사극 말투(~옵니다, ~할 상이로다, ~구나 등)로 결과를 출력하시오.
-
-⚠️ 중요: 4가지 신분을 골고루 다양하게 선택하시오.
-
-[선택 가능한 4가지 신분]
-1. 👑 왕(王) 👑
-2. ⚔️ 무인(武人) ⚔️
-3. 📜 문인(文人) 📜 
-4. 🌿 의관(醫官) 🌿
-
-[출력 규칙 - 프론트엔드 파싱용 (매우 중요)]
-1. 마크다운 문법(#, ** 등)은 절대 쓰지 마시오.
-2. 각 섹션을 정확히 "###SECTION###"으로만 분리하시오. 총 3개의 섹션이 나와야 합니다.
-
-[섹션 1: 신분 선언]
-반드시 **첫 번째 줄에는 이모지와 신분 이름만** 단독으로 작성하시오. (프론트엔드에서 큰 제목으로 씁니다)
-그 다음 줄부터 신분별 필수 멘트와 웅장한 설명을 사극풍으로 적으시오.
-
-출력 예시:
-⚔️ 무인(武人)⚔️ 
-(여기는 반드시 빈 줄)
-태산 같은 기백이오! 수만 가지 난관을 단칼에 베어버릴 대장군의 상이옵니다!
-굳건한 의지와 담대한 기상을 지니셨구려.
-
-###SECTION###
-
-[섹션 2: 관상 세밀 풀이]
-구체적인 얼굴 특징(이마, 눈매, 코 등)을 먼저 언급한 후, 관상 풀이를 진행하시오. 3~4가지 특징 분석.
-
-출력 예시:
-• 이마가 넓고 반듯하게 뻗어 있으며 윤기가 도는 편이라 → 초년 운이 안정적이고, 학습 능력과 판단력이 좋아 스스로 길을 개척하는 타입입니다.
-• 눈매가 길고 눈꼬리가 살짝 올라가 있으며 눈동자가 또렷하니 → 집중력과 통찰력이 강하고, 사람의 속마음을 잘 읽는 편이라 대인관계에서 주도권을 잡기 쉽습니다
-• 코대가 곧고 코끝에 살이 모여 있어 보이므로 → 재물운이 꾸준히 쌓이는 구조이며, 한 번 잡은 기회를 실속 있게 가져가는 현실 감각이 좋습니다.
-• 입술이 도톰하고 입꼬리가 자연스럽게 올라가 있어 → 표현력이 좋고 인간관계에서 호감을 얻기 쉬우며, 말로 복을 만드는 관상입니다.
-
-###SECTION###
-
-[섹션 3: 사주 풀이]
-운(운명)을 분석하시오. 예시 외의 다른 운도 추가해도 됩니다. 운 앞에는 💻🚀🐛🎯📚🤝💰🏆✨ 이모지를 꼭 넣으시오.
-
-출력 예시:
-💰 재물운: 금은보화가 끊이지 않을 상이옵니다!
-🤝 인연운: 귀인을 만나 큰 뜻을 이룰 기질이 보이오!
-📚 학문운: 문장과 학식이 날로 늘어나 이름을 떨칠 것이로다!
-🏆 벼슬운: 높은 벼슬에 오를 팔자이니 때를 기다리시오!
-✨ 수명운: 천수를 누리며 자손이 번창할 복록이 있도다!
-`;
+function parseResult(text) {
+  const sections = text.split(SECTION_DELIMITER).map(s => s.trim());
+  const identityRaw = sections[0] || '';
+  const lines = identityRaw.split('\n').map(line => line.trim()).filter(Boolean);
+  return {
+    title: lines[0] ?? '분석 중 오류 발생',
+    identityDesc: lines.length > 1 ? lines.slice(1).join('\n\n') : identityRaw,
+    face: sections[1] || '',
+    fortune: sections[2] || text,
+  };
+}
 
 function App() {
   const webcamRef = useRef(null);
   const [imgSrc, setImgSrc] = useState(null);
-  const [resultText, setResultText] = useState("여기 앉으시게. 얼굴을 똑바로 들고 관상 스캔을 누르시오.\n\n(준비가 되었거든 아래 버튼을 누르시게!)");
+  const [resultText, setResultText] = useState(INITIAL_TEXT);
   const [isLoading, setIsLoading] = useState(false);
 
   const analyzeFace = useCallback(async (base64Image) => {
     setIsLoading(true);
-    setResultText("그대의 용안을 자세히 살펴보는 중이옵니다... ⏳");
+    setResultText(LOADING_TEXT);
 
     if (USE_MOCK_DATA) {
-      const MOCK_RESULTS = [
-        `⚔️ 무인(武人)⚔️\n\n태산 같은 기백이오! 수만 가지 난관을 단칼에 베어버릴 대장군의 상이옵니다! 🔥\n\n###SECTION###\n\n• 이마가 넓고 광대가 도드라져 → 통찰력이 뛰어나 큰 그림을 한눈에 파악하는 재주가 있구나! 🧠\n• 눈매가 날카롭고 눈썹이 진하니 → 문제의 핵심을 단번에 찾아낼 집중력을 타고났소! 👁️\n• 코대가 곧고 입술이 굳게 다물어져 → 어떤 난관도 포기하지 않을 강인한 의지를 지녔소! 💪\n\n###SECTION###\n\n💰 재물운: 금은보화가 끊이지 않을 상이옵니다!\n🤝 인연운: 귀인을 만나 큰 뜻을 이룰 기질이 보이오!\n📚 학문운: 문장과 학식이 날로 늘어나 이름을 떨칠 것이로다!\n🏆 벼슬운: 높은 벼슬에 오를 팔자이니 때를 기다리시오!\n✨ 수명운: 천수를 누리며 자손이 번창할 복록이 있도다!`,
-        `👑 왕(王)👑\n\n천하를 호령할 제왕의 관상이옵니다! 만인지상의 자리에 오를 운명이로다! ✨\n\n###SECTION###\n\n• 이마가 넓고 빛이 나니 → 미래를 내다보는 혜안과 통솔력이 타고난 상이오! 🌟\n• 눈빛이 깊고 안정적이니 → 사람들을 이끌 카리스마가 넘치는구나! 👑\n• 입매가 결단력 있어 보이니 → 어떤 상황에서도 올바른 판단을 내릴 상이오!\n• 전체적으로 균형 잡힌 이목구비 → 중심을 잃지 않는 리더의 품격이 돋보이는구나!\n\n###SECTION###\n\n💰 재물운: 천하의 부를 손에 쥘 만한 재주가 있소!\n🤝 인연운: 뭇사람의 중심이 되어 크나큰 뜻을 펼칠 상이오!\n📚 학문운: 모든 분야를 섭렵할 만능 재주꾼이로다!\n🏆 벼슬운: 정승의 자리도 넘볼 대업이 기다리고 있소!\n✨ 수명운: 장수하며 후손에게 큰 복을 물려줄 팔자요!`,
-        `📜 문인(文人)📜\n\n붓끝에서 진리가 흐르는 천하제일 문장가의 상이옵니다! 📖\n\n###SECTION###\n\n• 이마가 높고 총명해 보이니 → 어려운 이치도 순식간에 깨우치는 지혜를 가졌구나! 💡\n• 눈빛이 맑고 차분하니 → 글을 짓고 학문을 논하는 데 타고난 재주가 있소! 📝\n• 입매가 단정하고 사려깊어 보여 → 말로써 사람을 설득하는 능변이 탁월하오!\n• 전반적으로 지적이고 섬세한 인상 → 학문과 예술에 뛰어난 재능을 타고났소!\n\n###SECTION###\n\n💰 재물운: 학문으로 명예와 녹봉을 얻을 운명이오!\n🤝 인연운: 글로써 뭇사람을 감화시킬 재능이 있소!\n📚 학문운: 끊임없이 배우며 성장하는 평생 학자의 관상이오!\n🏆 벼슬운: 존경받는 대학자가 될 운명이로다!\n✨ 수명운: 학덕을 쌓아 길이 이름을 남길 팔자요!`,
-        `🌿 의관(醫官)🌿\n\n백성의 병을 고치는 천하제일 의원의 상이옵니다! 🔬\n\n###SECTION###\n\n• 눈가가 세심하고 주의깊어 보이니 → 미세한 증상도 놓치지 않는 예리한 관찰력이 있구나!\n• 전체적으로 차분하고 신중한 인상 → 성급하지 않고 병의 근원을 찾아내는 꼼꼼함이 있소!\n• 미간이 좁고 집중력 있어 보이니 → 어려운 병증도 능숙하게 다스릴 솜씨가 있소! 🛠️\n• 입술이 굳건하니 → 어떤 어려운 환자도 끝까지 치료해낼 끈기가 있도다!\n\n###SECTION###\n\n💰 재물운: 의술로 명성과 재물을 얻을 상이옵니다!\n🤝 인연운: 많은 이의 생명을 살려 덕망을 쌓을 팔자요!\n📚 학문운: 깊이 있게 파고드는 전문가의 기질이 있소!\n🏆 벼슬운: 어의 혹은 명의로 이름을 떨칠 운명이로다!\n✨ 수명운: 덕을 쌓아 자손대대 복을 누릴 팔자요!🚀✨`,
-      ];
       setTimeout(() => {
-        const mockResult = MOCK_RESULTS[Math.floor(Math.random() * MOCK_RESULTS.length)];
-        setResultText(mockResult);
+        setResultText(MOCK_RESULTS[Math.floor(Math.random() * MOCK_RESULTS.length)]);
         setIsLoading(false);
-      }, 2000);
+      }, MOCK_DELAY);
       return;
     }
 
     try {
       const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: 'gpt-4o-mini',
         messages: [
-          { role: "system", content: SYSTEM_PROMPT },
+          { role: 'system', content: SYSTEM_PROMPT },
           {
-            role: "user",
+            role: 'user',
             content: [
-              { type: "text", text: "이 사람의 관상을 봐주시오." },
-              { type: "image_url", image_url: { url: base64Image } },
+              { type: 'text', text: '이 사람의 관상을 봐주시오.' },
+              { type: 'image_url', image_url: { url: base64Image } },
             ],
-          }
+          },
         ],
         max_tokens: 1000,
       });
@@ -116,37 +79,15 @@ function App() {
     analyzeFace(imageSrc);
   }, [analyzeFace]);
 
-  const retake = () => {
+  const retake = useCallback(() => {
     setImgSrc(null);
-    setResultText("다음 분 앞으로 오시게! 카메라를 응시하고 버튼을 누르시오.");
-  };
+    setResultText(RETAKE_TEXT);
+  }, []);
 
-  const parseResult = (text) => {
-    const sections = text.split('###SECTION###').map(s => s.trim());
-
-    const identityRaw = sections[0] || '';
-    const lines = identityRaw.split('\n').map(line => line.trim()).filter(line => line !== '');
-
-    const mainTitle = lines.length > 0 ? lines[0] : '분석 중 오류 발생';
-    const mainDesc = lines.length > 1 ? lines.slice(1).join('\n\n') : identityRaw;
-
-    return {
-      title: mainTitle,
-      identityDesc: mainDesc,
-      face: sections[1] || '',
-      fortune: sections[2] || text
-    };
-  };
-
-  const resultSections = parseResult(resultText);
+  const resultSections = useMemo(() => parseResult(resultText), [resultText]);
 
   return (
-    <div className="app-container">
-      <header className="header">
-        <h1 className="retro-font glowing-text">🏮 ALOM 관상소 🏮</h1>
-        <p className="retro-font subtitle">천기를 읽는 아롬이 다롬이가 그대의 운명을 살펴보겠소</p>
-      </header>
-
+    <div className="app-root">
       {imgSrc && !isLoading ? (
         <ResultScreen imgSrc={imgSrc} resultSections={resultSections} retake={retake} />
       ) : (
@@ -155,7 +96,6 @@ function App() {
           imgSrc={imgSrc}
           isLoading={isLoading}
           capture={capture}
-          resultText={resultText}
         />
       )}
     </div>
