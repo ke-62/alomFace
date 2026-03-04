@@ -8,7 +8,7 @@ const openai = new OpenAI({
 
 export async function fetchFaceAnalysis(base64Image) {
   const response = await openai.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-5-mini',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
@@ -19,7 +19,7 @@ export async function fetchFaceAnalysis(base64Image) {
         ],
       },
     ],
-    max_completion_tokens: 2000,
+    max_tokens: 16000,
   });
   console.log('전체 message 객체:', JSON.stringify(response.choices[0].message));
   console.log('finish_reason:', response.choices[0].finish_reason);
