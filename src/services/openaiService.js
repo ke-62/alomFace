@@ -21,7 +21,8 @@ export async function fetchFaceAnalysis(base64Image) {
     ],
     max_completion_tokens: 2000,
   });
+  console.log('전체 message 객체:', JSON.stringify(response.choices[0].message));
+  console.log('finish_reason:', response.choices[0].finish_reason);
   const content = response.choices[0].message.content ?? '';
-  console.log('AI 응답 원문:', content);
   return content;
 }
